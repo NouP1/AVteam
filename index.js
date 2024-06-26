@@ -189,7 +189,7 @@ const start = async () => {
                     .find(button => JSON.parse(button.callback_data).pixelId === user.pixelId);
                 user.pixelName = selectedPixel.text;
 
-                await bot.editMessageText("Отправь мне номер account_id, на который нужно пошерить выбранный пиксель", {
+                await bot.editMessageText("Отправь мне номер аккаунта, на который нужно пошерить выбранный пиксель", {
                     chat_id: chatId,
                     message_id: messageId,
                     reply_markup: back.reply_markup
