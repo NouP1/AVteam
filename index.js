@@ -2,6 +2,7 @@ const TelegramApi = require('node-telegram-bot-api');
 const axios = require('axios');
 const { back, backError } = require('./options');
 const { logUserAction, checkElasticsearchConnection, logBotError, logUserError } = require('./elastic');
+// const {sendPixel} = require('./sendPix')
 require('dotenv').config();
 
 const token = process.env.TOKEN;
@@ -107,8 +108,6 @@ async function sendPixel(chatId) {
                 // Проверяем ключ, если пользователь не авторизован
                 if (text === key) {
                     authorizedUsers[chatId] = true;
-
-                    sendPixel(chatId)
                 } else {
                     await bot.sendMessage(chatId, "Неверный ключ!");
                 }
