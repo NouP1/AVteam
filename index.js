@@ -108,6 +108,8 @@ async function sendPixel(chatId) {
                 // Проверяем ключ, если пользователь не авторизован
                 if (text === key) {
                     authorizedUsers[chatId] = true;
+
+                    await sendPixel(chatId)
                 } else {
                     await bot.sendMessage(chatId, "Неверный ключ!");
                 }
