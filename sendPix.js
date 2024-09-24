@@ -22,11 +22,12 @@ async function sendPixel(chatId) {
         '1092606521936943': 'Для pwa прил тир 3',
         '896644941674454': 'Для iOS ZM',
         '786851899966322': 'Для iOS Buzz прил',
-        '961413918926551': 'Для pwa тир 1-2'
+        '961413918926551': 'Для pwa тир 1-2',
+        '3854526388163031' : 'только для сша'
     };
 
-    // Берем первые три пикселя из первого бизнес-менеджера и первый пиксель из второго
-    const pixelsFirst = listpixelsFirst.data.data.slice(0, 3).map(pixel => ({
+   
+    const pixelsFirst = listpixelsFirst.data.data.slice(0, 4).map(pixel => ({
         ...pixel,
         businessId: businessIdFirst,
         name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
@@ -37,13 +38,12 @@ async function sendPixel(chatId) {
         name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
     }));
 
-    // Объединяем массивы
+   
     const pixels = [
         ...pixelsFirst,
         ...pixelSecond
     ];
 
-    // Формируем массив кнопок
     inlineKeyboard = pixels.map(pixel => [{
         text: pixel.name,
         callback_data: JSON.stringify({ pixelId: pixel.id, businessId: pixel.businessId })
