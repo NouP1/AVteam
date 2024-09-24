@@ -1,10 +1,12 @@
+const axios = require('axios');
+require('dotenv').config();
+
 const metaAccessTokenFirst = process.env.LONG_LIVED_TOKEN_FIRST;
 const metaAccessTokenSecond = process.env.LONG_LIVED_TOKEN_SECOND;
-
 const businessIdFirst = process.env.BUSINESS_ID_FIRST;
 const businessIdSecond = process.env.BUSINESS_ID_SECOND;
 
-async function sendPixel(chatId) {
+async function sendPixel() {
     const [listpixelsFirst, listpixelsSecond] = await Promise.all([
         axios.get(`https://graph.facebook.com/v20.0/${businessIdFirst}/adspixels?fields=name`, {
             headers: {
@@ -23,10 +25,10 @@ async function sendPixel(chatId) {
         '896644941674454': 'Для iOS ZM',
         '786851899966322': 'Для iOS Buzz прил',
         '961413918926551': 'Для pwa тир 1-2',
-        '3854526388163031' : 'только для сша'
+        '3854526388163031': 'только для сша'
     };
 
-   
+    // Берем первые три пикселя из первого бизнес-менеджера и первый пиксель из второго
     const pixelsFirst = listpixelsFirst.data.data.slice(0, 4).map(pixel => ({
         ...pixel,
         businessId: businessIdFirst,
@@ -38,17 +40,19 @@ async function sendPixel(chatId) {
         name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
     }));
 
-   
+    // Объединяем массивы
     const pixels = [
         ...pixelsFirst,
         ...pixelSecond
     ];
 
-    inlineKeyboard = pixels.map(pixel => [{
+    // Формируем массив кнопок
+    const inlineKeyboard = pixels.map(pixel => [{
         text: pixel.name,
         callback_data: JSON.stringify({ pixelId: pixel.id, businessId: pixel.businessId })
     }]);
 
-   
+    return { inlineKeyboard };
 }
-    module.exports = {sendPixel}
+
+module.exports = { sendPixel };

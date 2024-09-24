@@ -2,7 +2,6 @@ const TelegramApi = require('node-telegram-bot-api');
 const axios = require('axios');
 const { back, backError } = require('./options');
 const { logUserAction, checkElasticsearchConnection, logBotError, logUserError } = require('./elastic');
-// const {sendPixel} = require('./sendPix')
 require('dotenv').config();
 
 const token = process.env.TOKEN;
@@ -67,9 +66,8 @@ async function sendPixel(chatId) {
                         '896644941674454': 'Для iOS ZM',
                         '786851899966322': 'Для iOS Buzz прил',
                         '961413918926551': 'Для pwa тир 1-2',
-                        '3854526388163031' : 'только для сша'
-                    };
-
+                        '3854526388163031':'только для сша'
+                    }
                     // Берем первые три пикселя из первого бизнес-менеджера и первый пиксель из второго
                     const pixelsFirst = listpixelsFirst.data.data.slice(0, 4).map(pixel => ({
                         ...pixel,
@@ -110,7 +108,61 @@ async function sendPixel(chatId) {
                 if (text === key) {
                     authorizedUsers[chatId] = true;
 
-                    await sendPixel(chatId)
+                    const [listpixelsFirst, listpixelsSecond] = await Promise.all([
+                        axios.get(`https://graph.facebook.com/v20.0/${businessIdFirst}/adspixels?fields=name`, {
+                            headers: {
+                                'Authorization': `Bearer ${metaAccessTokenFirst}`
+                            }
+                        }),
+                        axios.get(`https://graph.facebook.com/v20.0/${businessIdSecond}/adspixels?fields=name`, {
+                            headers: {
+                                'Authorization': `Bearer ${metaAccessTokenSecond}`
+                            }
+                        })
+                    ]);
+
+                    const pixelPurposes = {
+                        '1092606521936943': 'Для pwa прил тир 3',
+                        '896644941674454': 'Для iOS ZM',
+                        '786851899966322': 'Для iOS Buzz прил',
+                        '961413918926551': 'Для pwa тир 1-2',
+                        '3854526388163031':'только для сша'
+                        
+                    };
+
+                    // Берем первые три пикселя из первого бизнес-менеджера и первый пиксель из второго
+                    const pixelsFirst = listpixelsFirst.data.data.slice(0, 4).map(pixel => ({
+                        ...pixel,
+                        businessId: businessIdFirst,
+                        name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
+                    }));
+                    const pixelSecond = listpixelsSecond.data.data.slice(0, 1).map(pixel => ({
+                        ...pixel,
+                        businessId: businessIdSecond,
+                        name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
+                    }));
+
+                    // Объединяем массивы
+                    const pixels = [
+                        ...pixelsFirst,
+                        ...pixelSecond
+                    ];
+
+                    // Формируем массив кнопок
+                    inlineKeyboard = pixels.map(pixel => [{
+                        text: pixel.name,
+                        callback_data: JSON.stringify({ pixelId: pixel.id, businessId: pixel.businessId })
+                    }]);
+
+               
+
+
+                    await bot.sendMessage(chatId, "Привет, выбирай нужный тебе пиксель", {
+                        reply_markup: {
+                            inline_keyboard: inlineKeyboard
+                        }
+                    });
+                 
                 } else {
                     await bot.sendMessage(chatId, "Неверный ключ!");
                 }
@@ -238,11 +290,12 @@ async function sendPixel(chatId) {
                     '1092606521936943': 'Для pwa прил тир 3',
                     '896644941674454': 'Для iOS ZM',
                     '786851899966322': 'Для iOS Buzz прил',
-                    '961413918926551': 'Для pwa тир 1-2'
+                    '961413918926551': 'Для pwa тир 1-2',
+                    '3854526388163031':'только для сша'
                 };
 
                 // Берем первые три пикселя из первого бизнес-менеджера и первый пиксель из второго
-                const pixelsFirst = listpixelsFirst.data.data.slice(0, 3).map(pixel => ({
+                const pixelsFirst = listpixelsFirst.data.data.slice(0, 4).map(pixel => ({
                     ...pixel,
                     businessId: businessIdFirst,
                     name: `${pixel.name} - ${pixelPurposes[pixel.id] || ''}`
