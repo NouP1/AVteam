@@ -47,7 +47,7 @@ const start = async () => {
 
                     authorizedUsers[chatId] = true;
 
-async function sendPixel(chatId) {
+
                     const [listpixelsFirst, listpixelsSecond] = await Promise.all([
                         axios.get(`https://graph.facebook.com/v20.0/${businessIdFirst}/adspixels?fields=name`, {
                             headers: {
@@ -100,7 +100,7 @@ async function sendPixel(chatId) {
                             inline_keyboard: inlineKeyboard
                         }
                     });
-                 }
+                 
                 }
 
             } else if (!authorizedUsers[chatId]) {
